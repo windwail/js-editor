@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.rawgit.com/konvajs/konva/0.15.0/konva.js"></script>
+  <meta charset="utf-8">
+  <title>Konva Rect Demo</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #F0F0F0;
+        }
+    </style>
+</head>
+<body>
+  <div id="container"></div>
+ <script>
+
+
+ var selected; 
+ var lastx ;
+ var lasty ;
+
+ var connections = new Array(); 
+
+
+ function createRect(x, y, w, h, layer) {
+
+ 		var group = new Konva.Group({
+    	    draggable: true
+    	    
+	    });
+
+	 	var rect = new Konva.Rect({
+	      x: x,
+	      y: y,
+	      width: w,
+	      height: h,
+	      fill: '#00D2FF',
+	      stroke: '#666',
+	      strokeWidth: 2,
+	      draggable: false,
+	      shadowColor: 'black',
+            shadowBlur: 3,
+            shadowOffset: {x : 2, y :2},
+            shadowOpacity: 0.2
+
+	      
+	    });
+
+
+    	var hw = w / 2;
+    	var hh = h / 2;
+
+    	var pointer = new Konva.Circle({
+            x: 20,
+            y: 20,
+            stroke: '#666',
+            fill: '#ddd',
+            strokeWidth: 2,
+            radius: 8,
+            draggable: false,
+            visible: false
+
+        });
+
+        var arrow = new Konva.Arrow({
+	      x: 0,
+	      y: 0,
+	      points: [0,0, 0, 0],
+	      pointerLength: 10,
+	      pointerWidth : 8,
+	      fill: 'black',
+	      stroke: 'black',
+	      strokeWidth: 2,
+	      visible: false
+	    });
+
+        var a1 = new Konva.Circle({
+            x: x+hw,
+            y: y,
+            stroke: '#666',
+            fill: '#ddd',
+            strokeWidth: 2,
+            radius: 8,
+            name: 'top',
+            draggable: false,
+            dragOnTop: false,
+            shadowColor: 'black',
+            shadowBlur: 3,
+            shadowOffset: {x : 2, y :2},
+            shadowOpacity: 0.2
+        });
+
+        
+
+       
+
+        var a4 = new Konva.Circle({
+            x: x+w,
+            y: y+hh,
+            stroke: '#666',
+            fill: '#ddd',
+            strokeWidth: 2,
+            radius: 8,
+            name: 'right',
+            draggable: true,
+            dragOnTop: false,
+            shadowColor: 'black',
+            shadowBlur: 3,
+            shadowOffset: {x : 2, y :2},
+            shadowOpacity: 0.2,
+
+        });
+
+        var a3 = new Konva.Circle({
+            x: x+hw,
+            y: y+h,
+            stroke: '#666',
+            fill: '#ddd',
+            strokeWidth: 2,
+            radius: 8,
+            name: 'bottom',
+            draggable: false,
+            dragOnTop: false,
+            shadowColor: 'black',
+            shadowBlur: 3,
+            shadowOffset: {x : 2, y :2},
+            shadowOpacity: 0.2
+        });
+
+
+
+        var a2 = new Konva.Circle({
+            x: x,
+            y: y+hh,
+            stroke: '#666',
+            fill: '#ddd',
+            strokeWidth: 2,
+            radius: 8,
+            name: 'left',
+            draggable: false,
+            dragOnTop: false,
+            shadowColor: 'black',
+            shadowBlur: 3,
+            shadowOffset: {x : 2, y :2},
+            shadowOpacity: 0.2
+        });
+
+
+         
+        
+
+        a4.on('dragstart', function(evt) {
+        	a4.setAttr("x", lastx);
+        	a4.setAttr("y", lasty);
+        	//a4.stopDrag();
+        	pointer.show();
+        	arrow.show();
+        	
+        });
+
+        a4.on('dragmove', function(evt) {
+        	a4.setAttr("x", lastx);
+        	a4.setAttr("y", lasty);
+        	//a4.stopDrag();
+
+        	pointer.setAttrs({x: evt.evt.x, y: evt.evt.y});
+
+        	ax = evt.evt.x - lastx ;
+        	ay = evt.evt.y - lasty ;
+
+        	arrow.setAttrs({x:lastx,y:lasty, points:[group.getAttr("x"),group.getAttr("y"),ax,ay]});
+
+        });
+
+        a4.on('dragend', function(evt) {
+        	a4.setAttr("x", lastx);
+        	a4.setAttr("y", lasty);
+        	//a4.stopDrag();
+
+        	pointer.hide();
+        	layer.draw();
+        });
+
+	    a4.on("mousedown", function(evt) {
+        	lastx =  a4.getAttr("x");
+         	lasty =  a4.getAttr("y");
+         	console.log("x "+lastx);
+         	console.log("y "+lasty);
+
+        });
+
+        a4.on("mouseup", function(evt) {
+        	console.log("circle click");
+        });
+
+        group.on("click", function(evt) {
+        	console.log("group click");
+
+        });
+
+        layer.on("mouseup", function(evt) {
+        	console.log("layer mouseup");
+
+        });
+
+        group.on("dragmove", function(evt){
+
+        });
+        
+
+	    group.add(rect);
+	    group.add(a1);
+	    group.add(a2);
+	    group.add(a3);
+	    group.add(a4);
+	    
+
+	    //arrow.cache();
+	    //rrow.filters([Konva.Filters.Blur]);
+	    layer.add(arrow);
+	    layer.add(pointer);
+
+	    layer.add(group);
+
+	    return group;
+
+ }
+
+
+
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+
+    var stage = new Konva.Stage({
+      container: 'container',
+      width: width,
+      height: height
+    });
+
+    var layer = new Konva.Layer();
+
+    var r1 = createRect(20,20, 150,100, layer);
+    var r2 = createRect(420,20, 150,100, layer);
+
+    var c1 = r1.findOne(".right").connect = r2.findOne(".left");
+    var c2 = r2.findOne(".left").connect = r1.findOne(".right");
+
+    var c1x = c1.getAttr("x");
+    var c1y = c1.getAttr("y");
+    var c2x = c2.getAttr("x");
+    var c2y = c2.getAttr("y");
+
+	var arrow = new Konva.Arrow({
+		      x: c1.getAttr("x"),
+		      y: c1.getAttr("y"),
+		      points: [0,0, 100, 100],
+		      pointerLength: 10,
+		      pointerWidth : 8,
+		      fill: 'black',
+		      stroke: 'black',
+		      strokeWidth: 2,
+		      visible: false
+		    });
+
+	layer.add(arrow);
+
+    r1.findOne(".right").connector = arrow;
+    r2.findOne(".left").connector = arrow;
+
+    
+
+
+
+    //layer.add(createRect(420,20, 150,100));
+
+
+    // add the layer to the stage
+    stage.add(layer);
+
+  </script>
+
+</body>
+</html>
